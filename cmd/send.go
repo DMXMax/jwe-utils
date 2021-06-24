@@ -26,6 +26,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"gopkg.in/square/go-jose.v2"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -52,7 +53,12 @@ var sendCmd = &cobra.Command{
 			log.Info().Msg("key retrieved")
 			if encData, err := encrypt(key, []byte(data)); err == nil {
 				if resp, err := SendData(encData, destURL); err == nil {
-					_ = resp
+					log.Info().Str("Response", resp.Status).Send()
+					if data, err := io.ReadAll(resp.Body); err == nil {
+						log.Info().Str("Body", string(data)).Send()
+					} else {
+						log.Error().Msg("Could not read response body")
+					}
 				} else {
 					log.Err(err).Send()
 				}
@@ -151,7 +157,6 @@ func SendData(data []byte, url string) (*http.Response, error) {
 		} else {
 			return nil, err
 		}
-		return nil, fmt.Errorf("Not implmented")
 	} else {
 		return nil, err
 	}
