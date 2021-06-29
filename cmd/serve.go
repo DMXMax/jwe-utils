@@ -86,6 +86,10 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 
 	pl := payload{}
 	if encdata, err := io.ReadAll(r.Body); err == nil {
+		
+		
+		examineData(encdata)
+
 		if data, err := decrypt_data(encdata, keyfile); err == nil {
 			log.Info().Str("Unencrypted Data", string(data)).Send()
 			if err := json.Unmarshal(data, &pl); err == nil {
@@ -145,4 +149,16 @@ func decrypt_data(data []byte, keyFile string) ([]byte, error) {
 	}
 
 	return nil, fmt.Errorf("Failed")
+}
+func examineData(data []byte){
+	info := map[string]interface{}{}
+	log.Info().Msg("Examining Data...")
+
+	if err := json.Unmarshal(data, &info);err == nil{
+		log.Info().Msgf("%#v", info)
+	} else {
+		log.Error().Msgf("Could Not Unmarshal Data")
+	}
+
+	log.Info().Msg("End examining Data...")
 }

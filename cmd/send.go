@@ -52,6 +52,7 @@ var sendCmd = &cobra.Command{
 		if key, err := getPublicKey(certFile); err == nil {
 			log.Info().Msg("key retrieved")
 			if encData, err := encrypt(key, []byte(data)); err == nil {
+				log.Info().Str("Encrypted", string(encData)).Send()
 				if resp, err := SendData(encData, destURL); err == nil {
 					log.Info().Str("Response", resp.Status).Send()
 					if data, err := io.ReadAll(resp.Body); err == nil {
